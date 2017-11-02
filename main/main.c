@@ -42,6 +42,9 @@
 
 #include "sdkconfig.h"
 
+// Marco's magic touch
+#include "led.h"
+
 #define GATTS_TAG "GATTS_DEMO"
 
 ///Declare the static function
@@ -335,11 +338,11 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         esp_gatt_rsp_t rsp;
         memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
         rsp.attr_value.handle = param->read.handle;
-        rsp.attr_value.len = 4;
-        rsp.attr_value.value[0] = 0xde;
-        rsp.attr_value.value[1] = 0xed;
-        rsp.attr_value.value[2] = 0xbe;
-        rsp.attr_value.value[3] = 0xef;
+        rsp.attr_value.len = 1;
+        rsp.attr_value.value[0] = led_get();
+        //rsp.attr_value.value[1] = 0xed;
+        //rsp.attr_value.value[2] = 0xbe;
+        //rsp.attr_value.value[3] = 0xef;
         esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id,
                                     ESP_GATT_OK, &rsp);
         break;
@@ -349,6 +352,8 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         if (!param->write.is_prep){
             ESP_LOGI(GATTS_TAG, "GATT_WRITE_EVT, value len %d, value :", param->write.len);
             esp_log_buffer_hex(GATTS_TAG, param->write.value, param->write.len);
+						//printf("value: %d\n", param->write.value[0]);
+						led_change(param->write.value[0]);
             if (gl_profile_tab[PROFILE_A_APP_ID].descr_handle == param->write.handle && param->write.len == 2){
                 uint16_t descr_value = param->write.value[1]<<8 | param->write.value[0];
                 if (descr_value == 0x0001){
@@ -519,6 +524,8 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
 void app_main()
 {
     esp_err_t ret;
+
+		led_init();
 
     // Initialize NVS.
     ret = nvs_flash_init();
