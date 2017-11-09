@@ -50,14 +50,14 @@
 ///Declare the static function
 static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
 
-#define GATTS_SERVICE_UUID_TEST_A   0xC2BD
-#define GATTS_CHAR_UUID_TEST_A      0xC24C
+#define LED_SERVICE   0xC2BD
+#define LED_ON_CHAR   0xC24C
 #define GATTS_DESCR_UUID_TEST_A     0x3333
 #define GATTS_NUM_HANDLE_TEST_A     4
 
-//char *TEST_DEVICE_NAME;
-char TEST_DEVICE_NAME[3 + 1 + 8 + 1];
-//#define TEST_DEVICE_NAME            "ESP_GATTS_DEMO"
+//char *SSID;
+char SSID[3 + 1 + 8 + 1];
+//#define SSID            "ESP_GATTS_DEMO"
 #define TEST_MANUFACTURER_DATA_LEN  17
 
 #define GATTS_DEMO_CHAR_VAL_LEN_MAX 0x40
@@ -304,9 +304,9 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         gl_profile_tab[PROFILE_A_APP_ID].service_id.is_primary = true;
         gl_profile_tab[PROFILE_A_APP_ID].service_id.id.inst_id = 0x00;
         gl_profile_tab[PROFILE_A_APP_ID].service_id.id.uuid.len = ESP_UUID_LEN_16;
-        gl_profile_tab[PROFILE_A_APP_ID].service_id.id.uuid.uuid.uuid16 = GATTS_SERVICE_UUID_TEST_A;
+        gl_profile_tab[PROFILE_A_APP_ID].service_id.id.uuid.uuid.uuid16 = LED_SERVICE;
 
-        esp_ble_gap_set_device_name(TEST_DEVICE_NAME);
+        esp_ble_gap_set_device_name(SSID);
 #ifdef CONFIG_SET_RAW_ADV_DATA
         esp_err_t raw_adv_ret = esp_ble_gap_config_adv_data_raw(raw_adv_data, sizeof(raw_adv_data));
         if (raw_adv_ret){
@@ -410,7 +410,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         ESP_LOGI(GATTS_TAG, "CREATE_SERVICE_EVT, status %d,  service_handle %d\n", param->create.status, param->create.service_handle);
         gl_profile_tab[PROFILE_A_APP_ID].service_handle = param->create.service_handle;
         gl_profile_tab[PROFILE_A_APP_ID].char_uuid.len = ESP_UUID_LEN_16;
-        gl_profile_tab[PROFILE_A_APP_ID].char_uuid.uuid.uuid16 = GATTS_CHAR_UUID_TEST_A;
+        gl_profile_tab[PROFILE_A_APP_ID].char_uuid.uuid.uuid16 = LED_ON_CHAR;
 
         esp_ble_gatts_start_service(gl_profile_tab[PROFILE_A_APP_ID].service_handle);
         a_property = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE | ESP_GATT_CHAR_PROP_BIT_NOTIFY;
@@ -531,7 +531,7 @@ void app_main()
 
 		uint8_t test[6] = {0};
 		esp_efuse_mac_get_default(test);
-		sprintf(TEST_DEVICE_NAME, "gbg-%02X%02X%02X%02X", test[2], test[3], test[4], test[5]);
+		sprintf(SSID, "gbg-%02X%02X%02X%02X", test[2], test[3], test[4], test[5]);
 
     // Initialize NVS.
     ret = nvs_flash_init();
